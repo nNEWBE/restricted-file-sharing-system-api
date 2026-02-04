@@ -1,3 +1,67 @@
 spring:
   application:
     name: restricted-file-sharing-system
+  
+
+  datasource:
+    url: jdbc:h2:file:./data/filedb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+  
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+  
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+  
+
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: ${MAILTRAP_USERNAME:your_username}
+    password: ${MAILTRAP_PASSWORD:your_password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+
+server:
+  port: 8080
+
+
+app:
+
+  jwt:
+    secret: ${JWT_SECRET:mySecretKeyForJWTTokenGenerationMustBeAtLeast256BitsLongForHS256Algorithm}
+    expiration-ms: 86400000
+  
+
+  verification:
+    expiry-minutes: 10
+    base-url: http://localhost:8080
+  
+
+  file:
+    upload-dir: ./uploads
