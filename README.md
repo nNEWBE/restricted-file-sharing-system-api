@@ -1,107 +1,128 @@
-# Restricted File Sharing System
+# 🔐 Restricted File Sharing System (RFSS)
 
-## Overview
-This is a secure, authenticated file-sharing system backend built with Spring Boot. It extends the concepts of custom authentication and secure file sharing to build a system where files are private by default and can only be shared with selected, verified users. This project is a backend-only implementation providing a robust REST API.
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.2-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Java](https://img.shields.io/badge/Java-21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-JSON%20Web%20Token-black?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![H2](https://img.shields.io/badge/Database-H2-005C84?style=for-the-badge&logo=hibernate&logoColor=white)
 
-## Features
+A high-security, enterprise-ready backend system for controlled file exchange. RFSS ensures that your data remains private by default, allowing file access only to authenticated, verified, and explicitly authorized users.
 
-### 1. User Authentication
-*   **Registration**: Users register with email and password.
-*   **Email Verification**: Users receive a verification link (valid for 10 minutes) to activate their account.
-*   **JWT Security**: Stateless authentication using JSON Web Tokens.
-*   **Restriction**: Only verified users can log in and access the system.
+---
 
-### 2. File Management
-*   **Secure Uploads**: Authenticated users can upload files. Files are stored securely on the server.
-*   **Ownership**: The uploader retains ownership of the file.
-*   **Persistence**: Files are stored permanently and are not deleted after download (unlike ephemeral file sharing systems).
+## 🚀 Vision
+In modern digital environments, public link sharing is often insecure. RFSS bridges the gap between ease of use and maximum security by implementing a **private-first** architecture. Every file is protected by a multi-layer verification system.
 
-### 3. Restricted Sharing
-*   **Explicit Access**: Files are not public. They can only be downloaded by the owner or users explicitly granted access.
-*   **User Validation**: Files can only be shared with users who are already registered and verified in the system.
-*   **Unified Access**: Uses a unique download token for file access, but validates the identity of the requester before permitting the download.
-*   **Notifications**: Recipients receive an email notification when a file is shared with them.
+## ✨ Core Features
 
-## Tech Stack
-*   **Language**: Java 21
-*   **Framework**: Spring Boot 3.4
-*   **Security**: Spring Security, JWT (jjwt)
-*   **Database**: H2 Database (File-based)
-*   **Email**: Spring Boot Mail Starter (Gmail SMTP)
-*   **Build Tool**: Gradle
+### 🔐 Secure Identity Management
+*   **Zero-Trust Registration**: New accounts are dormant until verified via a secure SMTP-driven link.
+*   **Ephemeral Verification**: Verification tokens are strictly time-bound (10-minute TTL).
+*   **JWT Authorization**: All secured endpoints require a valid Bearer Token derived from identity verification.
 
-## Getting Started
+### 📁 Advanced File Security
+*   **Encapsulated Storage**: Files are mapped to internal UUIDs, preventing direct file system discovery.
+*   **Non-Ephemeral Persistence**: Designed for project-based collaboration where files need to persist for the lifetime of a project.
+*   **Ownership Integrity**: Track the origin of every upload with immutable owner relationships.
 
-### Prerequisites
-*   Java Development Kit (JDK) 21 or higher
-*   Git
+### 🤝 Restricted Peer-to-Peer Sharing
+*   **Whitelist Logic**: Share files only with existing, verified members of the system.
+*   **Granular Authorization**: Even with a valid download token, the system validates the requester's identity against the authorized recipient whitelist.
+*   **Automated Notifications**: Real-time email alerts for shared resources.
 
-### Setup & Configuration
+---
 
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/nNEWBE/restricted-file-sharing-system-api.git
-    cd restricted-file-sharing-system-api
-    ```
+## 🛠️ Tech Stack
+| Tier | Technology | Rationale |
+| :--- | :--- | :--- |
+| **Framework** | Spring Boot 3.4 | Robust dependency injection and rapid API development. |
+| **Security** | Spring Security 6 | Industry-standard protection and JWT integration. |
+| **Database** | H2 Database | High-performance, file-based persistence for easy portability. |
+| **Messaging** | Java Mail Sender | Real-time SMTP integration for secure verification. |
+| **ORM** | Hibernate / JPA | Type-safe data access and simplified schema migrations. |
 
-2.  **Configure Application Properties**
-    Open `src/main/resources/application.yaml` and configure your email credentials and JWT secret.
+---
 
-    ```yaml
-    mail:
-      host: smtp.gmail.com
-      port: 587
-      username: your-email@gmail.com # Your Gmail address
-      password: your-app-password    # Your Gmail App Password
-    
-    app:
-      jwt:
-        secret: your-very-long-secret-key-must-be-at-least-256-bits
-    ```
-    > **Note**: For Gmail, you must use an **App Password** if 2-Step Verification is enabled.
+## 📖 API Reference
 
-3.  **Run the Application**
-    ```bash
-    ./gradlew bootRun
-    ```
-    The application will start on `http://localhost:8080`.
-
-## API Documentation
-
-A comprehensive **Postman Collection** is included in the project root:
-📄 `Restricted_File_Sharing_System.postman_collection.json`
-
-Import this file into Postman to test all endpoints.
-
-### Key Endpoints
-
-| Module | Method | Endpoint | Description |
+### Authentication Endpoints
+| Method | Endpoint | Description | Payload |
 | :--- | :--- | :--- | :--- |
-| **Auth** | `POST` | `/api/auth/register` | Register a new account |
-| | `POST` | `/api/auth/login` | Authenticate and get Bearer Token |
-| | `GET` | `/api/auth/verify?token=...` | Verify email address |
-| **Files** | `POST` | `/api/files/upload` | Upload a file (Multipart) |
-| | `GET` | `/api/files` | List files you own or have access to |
-| | `POST` | `/api/files/{id}/share` | Share a file with specific emails |
-| | `GET` | `/api/files/download/{token}` | Download a file (Requires Auth) |
+| `POST` | `/api/auth/register` | Create a new user account | `email`, `password` |
+| `POST` | `/api/auth/login` | Obtain a JWT Bearer Token | `email`, `password` |
+| `GET` | `/api/auth/verify` | Activate account via query token | `token` |
 
-## Database Access
-The application uses an H2 file-based database.
+### File Management Endpoints (Requires JWT)
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/files/upload` | Multipart upload to private storage |
+| `GET` | `/api/files` | Retrieve accessible resources (Owned & Shared) |
+| `POST` | `/api/files/{id}/share` | Grant access to a whitelist of emails |
+| `GET` | `/api/files/download/{token}` | Authorized resource retrieval |
 
-*   **Console URL**: [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
-*   **JDBC URL**: `jdbc:h2:file:./data/filedb`
-*   **User**: `sa`
-*   **Password**: `password`
+---
 
-## Project Structure
+## ⚙️ Configuration & Setup
+
+### 1. Prerequisites
+*   **JDK 21 LTS**
+*   **Gradle 8.x**
+*   **SMTP Provider** (e.g., Gmail App Password)
+
+### 2. Environment Variables
+RFSS uses `application.yaml` with variable interpolation. You can set these in your environment or update the file directly:
+
+```yaml
+spring:
+  mail:
+    username: ${MAIL_USERNAME} # Your Gmail
+    password: ${MAIL_PASSWORD} # Your App Password
+  
+app:
+  jwt:
+    secret: ${JWT_SECRET} # Minimum 256-bit string
 ```
+
+### 3. Installation
+```bash
+# Clone the repository
+git clone https://github.com/nNEWBE/restricted-file-sharing-system-api.git
+
+# Build the project
+./gradlew build
+
+# Launch the server
+./gradlew bootRun
+```
+
+---
+
+## 🧪 Testing with Postman
+A pre-configured test suite is included in the project:
+`Restricted_File_Sharing_System.postman_collection.json`
+
+1.  Import the collection into Postman.
+2.  Set the `base_url` variable.
+3.  Register a user -> Check console/email for token -> Verify account.
+4.  Login to populate the `jwt_token`.
+
+---
+
+## 🏗️ Project Architecture
+```text
 src/main/java/com/example/restricted_file_sharing_system/
-├── config/          # Security and App configuration
-├── controller/      # REST Controllers
-├── dto/             # Data Transfer Objects
-├── entity/          # JPA Entities (User, SharedFile, FileShare)
-├── exception/       # Custom exceptions and Global Handler
-├── repository/      # Data Access Layer
-├── security/        # JWT Filter, Provider, UserDetails
-└── service/         # Business Logic (Auth, File, Email)
+├── config/       # Security Policy & Bean Definitions
+├── controller/   # REST API Entry Points
+├── dto/          # Contract Data Structures
+├── entity/       # Database Domain Models
+├── exception/    # Error Handling Middleware
+├── repository/   # Persistence Interfaces
+├── security/     # JWT & Identity Logic
+└── service/      # Business & Domain Logic
 ```
+
+---
+
+## 📝 License
+Distributed under the MIT License. See `LICENSE` for more information.
+
+Developed with ❤️ for secure collaboration.
