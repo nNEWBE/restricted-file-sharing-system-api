@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Response DTO for file information.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

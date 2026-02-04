@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-/**
- * Response DTO for file sharing operation.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

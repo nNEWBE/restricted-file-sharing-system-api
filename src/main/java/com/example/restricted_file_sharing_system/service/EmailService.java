@@ -30,7 +30,7 @@ public class EmailService {
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(content, true);
-            helper.setFrom("noreply@restrictedfileshare.com");
+            helper.setFrom("shuvochandra999@gmail.com");
 
             mailSender.send(message);
             log.info("Email sent successfully to: {}", to);

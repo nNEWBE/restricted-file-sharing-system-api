@@ -1,8 +1,8 @@
 {
 	"info": {
-		"_postman_id": "b3e04275-c967-466d-9799-17865768565a",
+		"_postman_id": "8b326084-2575-4720-9430-674686967812",
 		"name": "Restricted File Sharing System",
-		"description": "Collection for testing the Restricted File Sharing System API.\n\n## Setup\n1. Import this collection into Postman.\n2. Ensure your server is running at `http://localhost:8080`.\n3. The `baseUrl` variable is set to localhost by default.\n\n## Workflow\n1. **Register** a user.\n2. Check your email (or Mailtrap) for the verification link/token.\n3. **Verify Email** using the token.\n4. **Login** to get the JWT token (automatically saved to `authToken` variable).\n5. **Upload** a file.\n6. **List Files** to see file IDs.\n7. **Share** a file with another registered & verified user.\n8. **Download** the file.",
+		"description": "Collection for testing Restricted File Sharing System APIs",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -10,13 +10,13 @@
 			"name": "Auth",
 			"item": [
 				{
-					"name": "Register User",
+					"name": "Register User A",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"user@example.com\",\r\n    \"password\": \"password123\"\r\n}",
+							"raw": "{\r\n    \"email\": \"usera@example.com\",\r\n    \"password\": \"password123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -24,9 +24,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/auth/register",
+							"raw": "{{base_url}}/api/auth/register",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"api",
@@ -38,14 +38,42 @@
 					"response": []
 				},
 				{
-					"name": "Verify Email",
+					"name": "Register User B",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"userb@example.com\",\r\n    \"password\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Email (Manual Token Input)",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/auth/verify?token=PASTE_TOKEN_HERE",
+							"raw": "{{base_url}}/api/auth/verify?token=PASTE_TOKEN_HERE",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"api",
@@ -56,7 +84,7 @@
 								{
 									"key": "token",
 									"value": "PASTE_TOKEN_HERE",
-									"description": "Paste the UUID token from the email link here"
+									"description": "Get this token from console logs or email"
 								}
 							]
 						}
@@ -64,17 +92,15 @@
 					"response": []
 				},
 				{
-					"name": "Login",
+					"name": "Login User A",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"var jsonData = pm.response.json();",
-									"if (jsonData.accessToken) {",
-									"    pm.collectionVariables.set(\"authToken\", jsonData.accessToken);",
-									"    console.log(\"Auth token set automatically\");",
-									"}"
+									"pm.environment.set(\"jwt_token\", jsonData.accessToken);",
+									"console.log(\"Token set to:\", jsonData.accessToken);"
 								],
 								"type": "text/javascript"
 							}
@@ -85,7 +111,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"user@example.com\",\r\n    \"password\": \"password123\"\r\n}",
+							"raw": "{\r\n    \"email\": \"usera@example.com\",\r\n    \"password\": \"password123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -93,9 +119,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/auth/login",
+							"raw": "{{base_url}}/api/auth/login",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"api",
@@ -107,13 +133,25 @@
 					"response": []
 				},
 				{
-					"name": "Register User 2 (For Sharing)",
+					"name": "Login User B",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"jwt_token_b\", jsonData.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"friend@example.com\",\r\n    \"password\": \"password123\"\r\n}",
+							"raw": "{\r\n    \"email\": \"userb@example.com\",\r\n    \"password\": \"password123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -121,14 +159,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/auth/register",
+							"raw": "{{base_url}}/api/auth/login",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"auth",
-								"register"
+								"login"
 							]
 						}
 					},
@@ -140,28 +178,31 @@
 			"name": "Files",
 			"item": [
 				{
-					"name": "Upload File",
+					"name": "Upload File (User A)",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"var jsonData = pm.response.json();",
-									"if (jsonData.fileId) {",
-									"    pm.collectionVariables.set(\"fileId\", jsonData.fileId);",
-									"}",
-									"if (jsonData.downloadLink) {",
-									"    // Extract token from link: .../download/{token}",
-									"    var link = jsonData.downloadLink;",
-									"    var token = link.substring(link.lastIndexOf('/') + 1);",
-									"    pm.collectionVariables.set(\"downloadToken\", token);",
-									"}"
+									"pm.environment.set(\"file_id\", jsonData.id);",
+									"pm.environment.set(\"download_token\", jsonData.downloadUrl.split('/').pop());"
 								],
 								"type": "text/javascript"
 							}
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
@@ -175,9 +216,9 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/files/upload",
+							"raw": "{{base_url}}/api/files/upload",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"api",
@@ -189,14 +230,24 @@
 					"response": []
 				},
 				{
-					"name": "List Files",
+					"name": "List Files (User A)",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/files",
+							"raw": "{{base_url}}/api/files",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"api",
@@ -207,13 +258,23 @@
 					"response": []
 				},
 				{
-					"name": "Share File",
+					"name": "Share File (User A -> User B)",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"emails\": [\r\n        \"friend@example.com\"\r\n    ]\r\n}",
+							"raw": "{\r\n    \"emails\": [\"userb@example.com\"]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -221,14 +282,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{baseUrl}}/api/files/{{fileId}}/share",
+							"raw": "{{base_url}}/api/files/{{file_id}}/share",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"files",
-								"{{fileId}}",
+								"{{file_id}}",
 								"share"
 							]
 						}
@@ -236,77 +297,72 @@
 					"response": []
 				},
 				{
-					"name": "Download File",
+					"name": "Download File (User B - Success)",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_b}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/api/files/download/{{downloadToken}}",
+							"raw": "{{base_url}}/api/files/download/{{download_token}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"files",
 								"download",
-								"{{downloadToken}}"
+								"{{download_token}}"
 							]
 						}
 					},
 					"response": []
-				}
-			],
-			"auth": {
-				"type": "bearer",
-				"bearer": [
-					{
-						"key": "token",
-						"value": "{{authToken}}",
-						"type": "string"
-					}
-				]
-			},
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
 				},
 				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
+					"name": "Download File (User A - Owner Success)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/files/download/{{download_token}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"files",
+								"download",
+								"{{download_token}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
 	],
 	"variable": [
 		{
-			"key": "baseUrl",
+			"key": "base_url",
 			"value": "http://localhost:8080",
-			"type": "string"
-		},
-		{
-			"key": "authToken",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "fileId",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "downloadToken",
-			"value": "",
 			"type": "string"
 		}
 	]

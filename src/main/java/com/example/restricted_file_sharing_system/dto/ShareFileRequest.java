@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-/**
- * Request DTO for sharing a file with users.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

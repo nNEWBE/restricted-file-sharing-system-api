@@ -1,8 +1,5 @@
 package com.example.restricted_file_sharing_system.exception;
 
-/**
- * Exception thrown when user's email is not verified.
- */
 public class EmailNotVerifiedException extends RuntimeException {
 
     public EmailNotVerifiedException(String message) {
